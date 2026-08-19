@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run db:generate && npm run build",
+  "framework": "nextjs",
+  "crons": [
+    { "path": "/api/cron/sync-deposits", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/run-daily-strategy-profit", "schedule": "5 0 * * *" },
+    { "path": "/api/cron/referral-payouts", "schedule": "10 0 * * *" },
+    { "path": "/api/cron/recalc-referral-levels", "schedule": "15 0 * * *" },
+    { "path": "/api/cron/sync-withdrawals", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/reconcile-balances", "schedule": "0 * * * *" }
+  ]
+}

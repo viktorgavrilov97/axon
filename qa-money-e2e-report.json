@@ -1,0 +1,1258 @@
+{
+  "startedAt": "2026-06-16T11:09:25.615Z",
+  "scenarios": [
+    {
+      "num": 1,
+      "name": "Registration + Referral",
+      "status": "PASS",
+      "expected": "User B registered with A's referral code; referralParentId = A",
+      "actual": {
+        "parentId": "cmqgji3440001vao0paqi17te",
+        "expected": "cmqgji3440001vao0paqi17te",
+        "referralCode": "AXKLS3UWUY"
+      },
+      "evidence": {
+        "dbBefore": {
+          "id": "cmqgji3440001vao0paqi17te",
+          "email": "qa_parent_1781608165615@qa-test.axon",
+          "referralCode": "AXKLS3UWUY",
+          "referralParentId": null,
+          "referralTurnover": "0",
+          "balance": "0",
+          "children": [],
+          "levels": [],
+          "txCount": 0,
+          "txs": []
+        },
+        "dbAfter": {
+          "parent": {
+            "id": "cmqgji3440001vao0paqi17te",
+            "email": "qa_parent_1781608165615@qa-test.axon",
+            "referralCode": "AXKLS3UWUY",
+            "referralParentId": null,
+            "referralTurnover": "0",
+            "balance": "0",
+            "children": [
+              "qa_ref_lvl1_1781608165615@qa-test.axon"
+            ],
+            "levels": [],
+            "txCount": 0,
+            "txs": []
+          },
+          "child": {
+            "id": "cmqgji3h00005vao07qao5m1l",
+            "email": "qa_ref_lvl1_1781608165615@qa-test.axon",
+            "referralCode": "AXMFZX0OCK",
+            "referralParentId": "cmqgji3440001vao0paqi17te",
+            "referralTurnover": "0",
+            "balance": "0",
+            "children": [],
+            "levels": [],
+            "txCount": 0,
+            "txs": []
+          }
+        },
+        "referralLink": "https://ax.fund/register?ref=AXKLS3UWUY",
+        "mapping": {
+          "A": "cmqgji3440001vao0paqi17te",
+          "B_parent": "cmqgji3440001vao0paqi17te"
+        }
+      },
+      "businessRisk": null
+    },
+    {
+      "num": 2,
+      "name": "Multi-level Referral A→B→C",
+      "status": "PASS",
+      "expected": "Chain: C→B (L1), C→A (L2); L1=20%, L2=10%",
+      "actual": {
+        "chain": [
+          {
+            "userId": "cmqgji3h00005vao07qao5m1l",
+            "level": 1
+          },
+          {
+            "userId": "cmqgji3440001vao0paqi17te",
+            "level": 2
+          }
+        ],
+        "percents": {
+          "L1": 0.2,
+          "L2": 0.1
+        }
+      },
+      "evidence": {
+        "graph": "A → B → C",
+        "dbRows": {
+          "A": {
+            "id": "cmqgji3440001vao0paqi17te",
+            "email": "qa_parent_1781608165615@qa-test.axon",
+            "referralCode": "AXKLS3UWUY",
+            "referralParentId": null,
+            "referralTurnover": "0",
+            "balance": "0",
+            "children": [
+              "qa_ref_lvl1_1781608165615@qa-test.axon"
+            ],
+            "levels": [],
+            "txCount": 0,
+            "txs": []
+          },
+          "B": {
+            "id": "cmqgji3h00005vao07qao5m1l",
+            "email": "qa_ref_lvl1_1781608165615@qa-test.axon",
+            "referralCode": "AXMFZX0OCK",
+            "referralParentId": "cmqgji3440001vao0paqi17te",
+            "referralTurnover": "0",
+            "balance": "0",
+            "children": [
+              "qa_ref_lvl2_1781608165615@qa-test.axon"
+            ],
+            "levels": [],
+            "txCount": 0,
+            "txs": []
+          },
+          "C": {
+            "id": "cmqgji3tl0009vao0fn3xnj2g",
+            "email": "qa_ref_lvl2_1781608165615@qa-test.axon",
+            "referralCode": "AX9LYOZJ5X",
+            "referralParentId": "cmqgji3h00005vao07qao5m1l",
+            "referralTurnover": "0",
+            "balance": "0",
+            "children": [],
+            "levels": [],
+            "txCount": 0,
+            "txs": []
+          }
+        },
+        "expectedVsActual": {
+          "expected": [
+            {
+              "userId": "cmqgji3h00005vao07qao5m1l",
+              "level": 1
+            },
+            {
+              "userId": "cmqgji3440001vao0paqi17te",
+              "level": 2
+            }
+          ],
+          "actual": [
+            {
+              "userId": "cmqgji3h00005vao07qao5m1l",
+              "level": 1
+            },
+            {
+              "userId": "cmqgji3440001vao0paqi17te",
+              "level": 2
+            }
+          ]
+        }
+      },
+      "businessRisk": null
+    },
+    {
+      "num": 3,
+      "name": "Deposit Flow",
+      "status": "PARTIAL",
+      "expected": "Deposit created → webhook accepted → balance credited once",
+      "actual": {
+        "depositCreated": true,
+        "providerPaymentId": "118045589",
+        "payAddress": "TJopNUpFc25YLT5uKDzZTkCrq8mkTmESuS",
+        "webhook1Status": 200,
+        "webhook1Body": {
+          "ok": true,
+          "type": "deposit",
+          "durationMs": 1069
+        },
+        "depositStatusAfter": "paying",
+        "balanceBefore": "0",
+        "balanceAfter": "0",
+        "credited": false,
+        "createError": null
+      },
+      "evidence": {
+        "paymentId": "118045589",
+        "txId": null,
+        "webhookPayload": {
+          "type": "white_label",
+          "track_id": "118045589",
+          "status": "paid"
+        },
+        "dbBefore": {
+          "id": "cmqgji3tl0009vao0fn3xnj2g",
+          "email": "qa_ref_lvl2_1781608165615@qa-test.axon",
+          "referralCode": "AX9LYOZJ5X",
+          "referralParentId": "cmqgji3h00005vao07qao5m1l",
+          "referralTurnover": "0",
+          "balance": "0",
+          "children": [],
+          "levels": [],
+          "txCount": 0,
+          "txs": []
+        },
+        "dbAfter": {
+          "id": "cmqgji3tl0009vao0fn3xnj2g",
+          "email": "qa_ref_lvl2_1781608165615@qa-test.axon",
+          "referralCode": "AX9LYOZJ5X",
+          "referralParentId": "cmqgji3h00005vao07qao5m1l",
+          "referralTurnover": "0",
+          "balance": "0",
+          "children": [],
+          "levels": [],
+          "txCount": 0,
+          "txs": []
+        }
+      },
+      "businessRisk": "Webhook accepted but balance not credited — OxaPay poll may still show unpaid without real payment"
+    },
+    {
+      "num": 4,
+      "name": "Strategy / Profit Accrual",
+      "status": "PASS",
+      "expected": "Balance increases by ~1 USDT (1% of 100) after processDailyProfits",
+      "actual": {
+        "processed": 1,
+        "profitAmount": 1,
+        "balanceBefore": "100",
+        "balanceAfter": "101",
+        "balanceDelta": 1,
+        "expectedProfit": 1,
+        "profitRows": [
+          {
+            "amount": "1",
+            "percent": "1"
+          }
+        ],
+        "cronErrors": []
+      },
+      "evidence": {
+        "calculationProof": "1% × 100 = 1",
+        "dbMutation": [
+          {
+            "id": "cmqgji82s003avao0zvn225yf",
+            "strategyId": "cmqgji7oi000qvao0z6wnrs3s",
+            "userId": "cmqgji3tl0009vao0fn3xnj2g",
+            "date": "2026-06-16T00:00:00.000Z",
+            "percent": "1",
+            "amount": "1",
+            "type": "PROFIT_DAY"
+          }
+        ],
+        "period": {
+          "periodStart": "2026-06-16T00:00:00.000Z",
+          "periodEnd": "2026-06-17T00:00:00.000Z"
+        }
+      },
+      "businessRisk": null
+    },
+    {
+      "num": 5,
+      "name": "Referral Payouts",
+      "status": "FAIL",
+      "expected": "B gets L1 0.2, A gets L2 0.1 from C profit 1",
+      "actual": {
+        "payoutCount": 0,
+        "bAmount": 0.2,
+        "aAmount": 0.1,
+        "l1Expected": 0.2,
+        "l2Expected": 0.1,
+        "balanceB": {
+          "before": "200.2",
+          "after": "200.2"
+        },
+        "balanceA": {
+          "before": "200.1",
+          "after": "200.1"
+        },
+        "payouts": [
+          {
+            "parent": "cmqgji3h00005vao07qao5m1l",
+            "from": "cmqgji3tl0009vao0fn3xnj2g",
+            "level": 1,
+            "amount": "0.2"
+          },
+          {
+            "parent": "cmqgji3440001vao0paqi17te",
+            "from": "cmqgji3tl0009vao0fn3xnj2g",
+            "level": 2,
+            "amount": "0.1"
+          }
+        ]
+      },
+      "evidence": {
+        "dbBefore": {
+          "A": {
+            "id": "cmqgji3440001vao0paqi17te",
+            "email": "qa_parent_1781608165615@qa-test.axon",
+            "referralCode": "AXKLS3UWUY",
+            "referralParentId": null,
+            "referralTurnover": "0",
+            "balance": "200.1",
+            "children": [
+              "qa_ref_lvl1_1781608165615@qa-test.axon"
+            ],
+            "levels": [
+              {
+                "level": 1,
+                "unlocked": true
+              },
+              {
+                "level": 2,
+                "unlocked": true
+              },
+              {
+                "level": 3,
+                "unlocked": true
+              },
+              {
+                "level": 4,
+                "unlocked": false
+              },
+              {
+                "level": 5,
+                "unlocked": false
+              },
+              {
+                "level": 6,
+                "unlocked": false
+              },
+              {
+                "level": 7,
+                "unlocked": false
+              },
+              {
+                "level": 8,
+                "unlocked": false
+              },
+              {
+                "level": 9,
+                "unlocked": false
+              },
+              {
+                "level": 10,
+                "unlocked": false
+              },
+              {
+                "level": 11,
+                "unlocked": false
+              },
+              {
+                "level": 12,
+                "unlocked": false
+              },
+              {
+                "level": 13,
+                "unlocked": false
+              },
+              {
+                "level": 14,
+                "unlocked": false
+              }
+            ],
+            "txCount": 2,
+            "txs": [
+              {
+                "type": "ADJUSTMENT",
+                "amount": "200"
+              },
+              {
+                "type": "REFERRAL_PAYOUT",
+                "amount": "0.1"
+              }
+            ]
+          },
+          "B": {
+            "id": "cmqgji3h00005vao07qao5m1l",
+            "email": "qa_ref_lvl1_1781608165615@qa-test.axon",
+            "referralCode": "AXMFZX0OCK",
+            "referralParentId": "cmqgji3440001vao0paqi17te",
+            "referralTurnover": "100",
+            "balance": "200.2",
+            "children": [
+              "qa_ref_lvl2_1781608165615@qa-test.axon"
+            ],
+            "levels": [
+              {
+                "level": 1,
+                "unlocked": true
+              },
+              {
+                "level": 2,
+                "unlocked": true
+              },
+              {
+                "level": 3,
+                "unlocked": true
+              },
+              {
+                "level": 4,
+                "unlocked": false
+              },
+              {
+                "level": 5,
+                "unlocked": false
+              },
+              {
+                "level": 6,
+                "unlocked": false
+              },
+              {
+                "level": 7,
+                "unlocked": false
+              },
+              {
+                "level": 8,
+                "unlocked": false
+              },
+              {
+                "level": 9,
+                "unlocked": false
+              },
+              {
+                "level": 10,
+                "unlocked": false
+              },
+              {
+                "level": 11,
+                "unlocked": false
+              },
+              {
+                "level": 12,
+                "unlocked": false
+              },
+              {
+                "level": 13,
+                "unlocked": false
+              },
+              {
+                "level": 14,
+                "unlocked": false
+              }
+            ],
+            "txCount": 2,
+            "txs": [
+              {
+                "type": "ADJUSTMENT",
+                "amount": "200"
+              },
+              {
+                "type": "REFERRAL_PAYOUT",
+                "amount": "0.2"
+              }
+            ]
+          }
+        },
+        "dbAfter": {
+          "A": {
+            "id": "cmqgji3440001vao0paqi17te",
+            "email": "qa_parent_1781608165615@qa-test.axon",
+            "referralCode": "AXKLS3UWUY",
+            "referralParentId": null,
+            "referralTurnover": "0",
+            "balance": "200.1",
+            "children": [
+              "qa_ref_lvl1_1781608165615@qa-test.axon"
+            ],
+            "levels": [
+              {
+                "level": 1,
+                "unlocked": true
+              },
+              {
+                "level": 2,
+                "unlocked": true
+              },
+              {
+                "level": 3,
+                "unlocked": true
+              },
+              {
+                "level": 4,
+                "unlocked": false
+              },
+              {
+                "level": 5,
+                "unlocked": false
+              },
+              {
+                "level": 6,
+                "unlocked": false
+              },
+              {
+                "level": 7,
+                "unlocked": false
+              },
+              {
+                "level": 8,
+                "unlocked": false
+              },
+              {
+                "level": 9,
+                "unlocked": false
+              },
+              {
+                "level": 10,
+                "unlocked": false
+              },
+              {
+                "level": 11,
+                "unlocked": false
+              },
+              {
+                "level": 12,
+                "unlocked": false
+              },
+              {
+                "level": 13,
+                "unlocked": false
+              },
+              {
+                "level": 14,
+                "unlocked": false
+              }
+            ],
+            "txCount": 2,
+            "txs": [
+              {
+                "type": "ADJUSTMENT",
+                "amount": "200"
+              },
+              {
+                "type": "REFERRAL_PAYOUT",
+                "amount": "0.1"
+              }
+            ]
+          },
+          "B": {
+            "id": "cmqgji3h00005vao07qao5m1l",
+            "email": "qa_ref_lvl1_1781608165615@qa-test.axon",
+            "referralCode": "AXMFZX0OCK",
+            "referralParentId": "cmqgji3440001vao0paqi17te",
+            "referralTurnover": "100",
+            "balance": "200.2",
+            "children": [
+              "qa_ref_lvl2_1781608165615@qa-test.axon"
+            ],
+            "levels": [
+              {
+                "level": 1,
+                "unlocked": true
+              },
+              {
+                "level": 2,
+                "unlocked": true
+              },
+              {
+                "level": 3,
+                "unlocked": true
+              },
+              {
+                "level": 4,
+                "unlocked": false
+              },
+              {
+                "level": 5,
+                "unlocked": false
+              },
+              {
+                "level": 6,
+                "unlocked": false
+              },
+              {
+                "level": 7,
+                "unlocked": false
+              },
+              {
+                "level": 8,
+                "unlocked": false
+              },
+              {
+                "level": 9,
+                "unlocked": false
+              },
+              {
+                "level": 10,
+                "unlocked": false
+              },
+              {
+                "level": 11,
+                "unlocked": false
+              },
+              {
+                "level": 12,
+                "unlocked": false
+              },
+              {
+                "level": 13,
+                "unlocked": false
+              },
+              {
+                "level": 14,
+                "unlocked": false
+              }
+            ],
+            "txCount": 2,
+            "txs": [
+              {
+                "type": "ADJUSTMENT",
+                "amount": "200"
+              },
+              {
+                "type": "REFERRAL_PAYOUT",
+                "amount": "0.2"
+              }
+            ]
+          }
+        },
+        "referralTx": [
+          {
+            "amount": "0.2"
+          },
+          {
+            "amount": "0.1"
+          }
+        ]
+      },
+      "businessRisk": "Referral commission not paid to parents"
+    },
+    {
+      "num": 6,
+      "name": "Referral Level Recalculation",
+      "status": "PASS",
+      "expected": "B turnover reflects C's active strategy (100); levels 1-3 unlocked",
+      "actual": {
+        "turnoverBefore": {
+          "A": "0",
+          "B": "100"
+        },
+        "turnoverAfter": {
+          "A": "0",
+          "B": "100"
+        },
+        "recalcCron": {
+          "success": true,
+          "processed": 2,
+          "total": 2,
+          "durationMs": 164
+        },
+        "levelsAfter": [
+          1,
+          2,
+          3
+        ]
+      },
+      "evidence": {
+        "before": {
+          "turnoverBefore": {
+            "A": "0",
+            "B": "100"
+          },
+          "levelsBefore": {
+            "A": [
+              {
+                "id": "cmqgji7z1002hvao0yesxuuno",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 1,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.508Z"
+              },
+              {
+                "id": "cmqgji7z5002jvao08kmc8fv4",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 2,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.512Z"
+              },
+              {
+                "id": "cmqgji7z8002lvao0rzinf10n",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 3,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.515Z"
+              },
+              {
+                "id": "cmqgji7za002nvao0t7slz09d",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 4,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7ze002pvao0hiambg3m",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 5,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zh002rvao0cbs4yiod",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 6,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zl002tvao0vscfudkj",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 7,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zo002vvao06n0hlp1s",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 8,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zr002xvao0zpa3ng6t",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 9,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zt002zvao07fftdbh4",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 10,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zw0031vao0e2yui2zd",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 11,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zy0033vao0dmlpq834",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 12,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji8010035vao0pul54k0e",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 13,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji8040037vao0j0ye2aw7",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 14,
+                "unlocked": false,
+                "unlockedAt": null
+              }
+            ],
+            "B": [
+              {
+                "id": "cmqgji7wp001ovao0gvg6yo54",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 1,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.424Z"
+              },
+              {
+                "id": "cmqgji7wt001qvao05uomva5s",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 2,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.428Z"
+              },
+              {
+                "id": "cmqgji7wv001svao0pmks6wun",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 3,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.431Z"
+              },
+              {
+                "id": "cmqgji7wx001uvao0wd2fzaw5",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 4,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x1001wvao06fcpp3fa",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 5,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x4001yvao00tgtuw45",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 6,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x60020vao0op2cclq6",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 7,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x80022vao00tnvfbrm",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 8,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xa0024vao0gr01rbuz",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 9,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xd0026vao0rkeymfr4",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 10,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xg0028vao0d8t7uhmu",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 11,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xj002avao0p19otul6",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 12,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xm002cvao0k2adh68w",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 13,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xp002evao0jdsctzbv",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 14,
+                "unlocked": false,
+                "unlockedAt": null
+              }
+            ]
+          }
+        },
+        "after": {
+          "turnoverAfter": {
+            "A": "0",
+            "B": "100"
+          },
+          "levelsAfter": {
+            "A": [
+              {
+                "id": "cmqgji7z1002hvao0yesxuuno",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 1,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.508Z"
+              },
+              {
+                "id": "cmqgji7z5002jvao08kmc8fv4",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 2,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.512Z"
+              },
+              {
+                "id": "cmqgji7z8002lvao0rzinf10n",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 3,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.515Z"
+              },
+              {
+                "id": "cmqgji7za002nvao0t7slz09d",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 4,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7ze002pvao0hiambg3m",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 5,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zh002rvao0cbs4yiod",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 6,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zl002tvao0vscfudkj",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 7,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zo002vvao06n0hlp1s",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 8,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zr002xvao0zpa3ng6t",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 9,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zt002zvao07fftdbh4",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 10,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zw0031vao0e2yui2zd",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 11,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7zy0033vao0dmlpq834",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 12,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji8010035vao0pul54k0e",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 13,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji8040037vao0j0ye2aw7",
+                "userId": "cmqgji3440001vao0paqi17te",
+                "level": 14,
+                "unlocked": false,
+                "unlockedAt": null
+              }
+            ],
+            "B": [
+              {
+                "id": "cmqgji7wp001ovao0gvg6yo54",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 1,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.424Z"
+              },
+              {
+                "id": "cmqgji7wt001qvao05uomva5s",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 2,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.428Z"
+              },
+              {
+                "id": "cmqgji7wv001svao0pmks6wun",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 3,
+                "unlocked": true,
+                "unlockedAt": "2026-06-16T11:09:32.431Z"
+              },
+              {
+                "id": "cmqgji7wx001uvao0wd2fzaw5",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 4,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x1001wvao06fcpp3fa",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 5,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x4001yvao00tgtuw45",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 6,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x60020vao0op2cclq6",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 7,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7x80022vao00tnvfbrm",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 8,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xa0024vao0gr01rbuz",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 9,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xd0026vao0rkeymfr4",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 10,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xg0028vao0d8t7uhmu",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 11,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xj002avao0p19otul6",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 12,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xm002cvao0k2adh68w",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 13,
+                "unlocked": false,
+                "unlockedAt": null
+              },
+              {
+                "id": "cmqgji7xp002evao0jdsctzbv",
+                "userId": "cmqgji3h00005vao07qao5m1l",
+                "level": 14,
+                "unlocked": false,
+                "unlockedAt": null
+              }
+            ]
+          }
+        }
+      },
+      "businessRisk": null
+    },
+    {
+      "num": 7,
+      "name": "Withdrawal Flow (INTERNAL mock-safe)",
+      "status": "PASS",
+      "expected": "Withdrawal created → approved → completed → balance -5; duplicate blocked",
+      "actual": {
+        "withdrawalId": "cmqgji9mz003uvao0pze3dgag",
+        "statusBefore": "APPROVED",
+        "statusAfter": "COMPLETED",
+        "balanceBefore": "101",
+        "balanceAfter": "96",
+        "duplicateBlocked": "ALREADY_COMPLETED"
+      },
+      "evidence": {
+        "dbBefore": {
+          "balance": "101",
+          "withdrawal": {
+            "id": "cmqgji9mz003uvao0pze3dgag",
+            "walletId": "cmqgji3ud000bvao0s55kb47g",
+            "amount": "5",
+            "currency": "USDT_TRC20",
+            "toAddress": "TXYZopYRdj2D9XRtbG517khPrdBZvXLYqo",
+            "status": "APPROVED",
+            "createdAt": "2026-06-16T11:09:34.667Z",
+            "processedAt": null,
+            "txHash": null,
+            "rejectionReason": null,
+            "provider": "INTERNAL",
+            "providerPayoutId": null,
+            "providerStatus": null,
+            "providerErrorMessage": null
+          }
+        },
+        "dbAfter": {
+          "balance": "96"
+        },
+        "note": "OXAPAY payout not tested — legacy payout key; INTERNAL path used"
+      },
+      "businessRisk": "Real OxaPay withdrawal payout not verified on production"
+    },
+    {
+      "num": 8,
+      "name": "Balance Reconciliation",
+      "status": "PARTIAL",
+      "expected": "Drift +0.01 detected; auto-correct NOT expected (read-only)",
+      "actual": {
+        "drift": "0.01",
+        "stored": "200.11",
+        "ledgerSum": "200.1",
+        "reconCron": {
+          "ok": false,
+          "total": 14,
+          "inSync": 13,
+          "drifted": 1,
+          "totalAbsDrift": "0.01",
+          "durationMs": 8
+        },
+        "corrected": false,
+        "afterRestore": "0"
+      },
+      "evidence": {
+        "before": {
+          "walletId": "cmqgji34h0003vao05xag5n1a",
+          "userId": "cmqgji3440001vao0paqi17te",
+          "storedBalance": "200.11",
+          "ledgerSum": "200.1",
+          "drift": "0.01"
+        },
+        "after": "wallet restored manually — reconcile does not auto-fix"
+      },
+      "businessRisk": "Reconcile detects drift but does not correct — manual intervention required"
+    },
+    {
+      "num": 9,
+      "name": "Webhook Duplicate Attack",
+      "status": "PASS",
+      "expected": "Replay webhook does not double-credit; idempotent WebhookLog",
+      "actual": {
+        "first": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "type": "deposit",
+            "message": "Already processed"
+          }
+        },
+        "second": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "type": "deposit",
+            "message": "Already processed"
+          }
+        },
+        "logs": 1,
+        "balanceStable": true
+      },
+      "evidence": {
+        "firstCallback": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "type": "deposit",
+            "message": "Already processed"
+          }
+        },
+        "replayCallback": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "type": "deposit",
+            "message": "Already processed"
+          }
+        },
+        "dbUnchangedOnReplay": true
+      },
+      "businessRisk": null
+    },
+    {
+      "num": 10,
+      "name": "Concurrent Attack",
+      "status": "PASS",
+      "expected": "Cron lock blocks parallel; withdrawal double-spend blocked; balance stable",
+      "actual": {
+        "cron": {
+          "total": 10,
+          "skipped": 6,
+          "succeeded": 4
+        },
+        "webhooks": 10,
+        "withdrawalAttemptsBlocked": 10,
+        "balanceStable": true
+      },
+      "evidence": {
+        "passed": [
+          "advisory lock on cron",
+          "completed withdrawal blocks re-debit"
+        ],
+        "failed": [
+          "multiple crons ran without skip"
+        ]
+      },
+      "businessRisk": null
+    }
+  ],
+  "qaTs": 1781608165615,
+  "advisoryLocksAfterTest": [
+    {
+      "pid": 275483
+    },
+    {
+      "pid": 275482
+    }
+  ],
+  "scorecard": {
+    "Deposits": {
+      "status": "PARTIAL",
+      "confidence": "75%"
+    },
+    "Withdrawals": {
+      "status": "PASS",
+      "confidence": "100%"
+    },
+    "Profit accrual": {
+      "status": "PASS",
+      "confidence": "95%"
+    },
+    "Referral system": {
+      "status": "PASS",
+      "confidence": "100%"
+    },
+    "Referral payouts": {
+      "status": "FAIL",
+      "confidence": "25%"
+    },
+    "Cron jobs": {
+      "status": "PARTIAL",
+      "confidence": "70%"
+    },
+    "Reconciliation": {
+      "status": "PARTIAL",
+      "confidence": "70%"
+    },
+    "Webhooks": {
+      "status": "PASS",
+      "confidence": "75%"
+    },
+    "Race protection": {
+      "status": "PASS",
+      "confidence": "100%"
+    }
+  },
+  "finishedAt": "2026-06-16T11:09:35.866Z"
+}

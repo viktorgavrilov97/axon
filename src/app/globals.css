@@ -1,0 +1,470 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Глобальное правило: размер > 20px = Display, <= 20px = Sans */
+  html {
+    @apply bg-surface-900;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  body {
+    @apply bg-surface-900;
+    font-family: var(--font-suisse), sans-serif;
+    height: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+  
+  /* Автоматический выбор шрифта по размеру */
+  /* largetitle - TimesNow */
+  .text-largetitle,
+  [class*="text-largetitle"]:not([class*="text-largetitle2"]) {
+    font-family: var(--font-times-now), serif;
+  }
+  
+  /* largetitle2 - Suisse */
+  .text-largetitle2,
+  [class*="text-largetitle2"] {
+    font-family: var(--font-suisse), sans-serif;
+  }
+  
+  /* Все остальные размеры - Suisse */
+  .text-display,
+  .text-heading,
+  .text-subheading,
+  .text-subheading2,
+  .text-body,
+  .text-callout,
+  .text-caption,
+  .text-small,
+  [class*="text-display"],
+  [class*="text-heading"],
+  [class*="text-subheading"],
+  [class*="text-subheading2"],
+  [class*="text-body"],
+  [class*="text-callout"],
+  [class*="text-caption"],
+  [class*="text-small"] {
+    font-family: var(--font-suisse), sans-serif;
+  }
+  
+  /* Универсальное правило для всех размеров - Suisse */
+  [style*="font-size: 21px"],
+  [style*="font-size: 22px"],
+  [style*="font-size: 23px"],
+  [style*="font-size: 24px"],
+  [style*="font-size: 25px"],
+  [style*="font-size: 26px"],
+  [style*="font-size: 27px"],
+  [style*="font-size: 28px"],
+  [style*="font-size: 29px"],
+  [style*="font-size: 30px"],
+  [style*="font-size: 31px"],
+  [style*="font-size: 32px"] {
+    font-family: var(--font-suisse), sans-serif;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 200ms ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .btn-primary-shadow {
+    box-shadow: inset 0 0 2.8125rem 0 rgba(46, 49, 183, 0.35) !important;
+  }
+
+  .animate-video-fade-in {
+    animation: videoFadeIn 1.2s ease-out;
+  }
+
+  @keyframes videoFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(1.1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-content-fade-in {
+    animation: contentFadeIn 0.2s ease-out 0.2s both;
+  }
+
+  @keyframes contentFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-logo-fade-in {
+    animation: logoFadeIn 0.2s ease-out 0.3s both;
+  }
+
+  @keyframes logoFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Modal animations */
+  .modal-content {
+    animation: modalFadeIn 0.2s ease-out;
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-right-scale {
+    animation: slideInRightScale 0.3s ease-out;
+  }
+
+  @keyframes slideInRightScale {
+    from {
+      transform: translateX(50px);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  /* Apply scale to body when modal is open */
+  body.modal-open {
+    overflow: hidden;
+  }
+
+  /* Prevent background scroll when modal is open */
+  html.modal-open {
+    overflow: hidden;
+  }
+
+  /*
+   * NOTE:
+   * Do NOT transform <body>/<html> while a modal is open.
+   * On mobile Safari/Chrome a transformed ancestor makes position:fixed behave like absolute,
+   * causing modals to be centered relative to the scrolled page instead of the viewport.
+   */
+
+  /* Hide scrollbar but keep functionality */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleLoader {
+    0%, 40%, 100% {
+      transform: scaleY(0.4);
+    }
+    20% {
+      transform: scaleY(1);
+    }
+  }
+
+  .animate-skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      #1a1a1a 0%,
+      #2a2a2a 50%,
+      #1a1a1a 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-operation-enter {
+    animation: operationEnter 0.4s ease-out;
+  }
+
+  @keyframes operationEnter {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Ripple effect animation for buttons */
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* Ensure Three.js Canvas doesn't appear above modals */
+  canvas {
+    position: relative !important;
+    z-index: 0 !important;
+  }
+
+  /* Hide all canvas elements when modal is open */
+  body.modal-open canvas,
+  html.modal-open canvas {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Ensure modal backdrop and content are above everything */
+  [class*="z-\[9999\]"] {
+    z-index: 9999 !important;
+  }
+
+  /* Ensure modal backdrop and content are above everything */
+  [class*="z-\[10000\]"] {
+    z-index: 10000 !important;
+  }
+
+  [class*="z-\[10001\]"] {
+    z-index: 10001 !important;
+  }
+
+  /* Custom background color for all modal content */
+  .modal-content-bg {
+    background-color: #141414 !important;
+  }
+
+  /* Hide spinner on number inputs */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Market Signals Background Animations */
+  @keyframes driftA {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(15px, 4px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes driftB {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-12px, -3px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes driftC {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(0, 6px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes dashFlow1 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 40;
+    }
+  }
+
+  @keyframes dashFlow2 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 32;
+    }
+  }
+
+  @keyframes dashFlow3 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 50;
+    }
+  }
+
+  @keyframes dashFlow4 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 36;
+    }
+  }
+
+  @keyframes dashFlow5 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 44;
+    }
+  }
+
+  @keyframes dashFlow6 {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 26;
+    }
+  }
+
+  .marketSignals .drift-layer-a {
+    animation: driftA 18s ease-in-out infinite;
+  }
+
+  .marketSignals .drift-layer-b {
+    animation: driftB 16s ease-in-out infinite;
+  }
+
+  .marketSignals .drift-layer-c {
+    animation: driftC 20s ease-in-out infinite;
+  }
+
+  .marketSignals .dash-flow-1 {
+    animation: dashFlow1 12s linear infinite;
+  }
+
+  .marketSignals .dash-flow-2 {
+    animation: dashFlow2 14s linear infinite;
+  }
+
+  .marketSignals .dash-flow-3 {
+    animation: dashFlow3 16s linear infinite;
+  }
+
+  .marketSignals .dash-flow-4 {
+    animation: dashFlow4 13s linear infinite;
+  }
+
+  .marketSignals .dash-flow-5 {
+    animation: dashFlow5 15s linear infinite;
+  }
+
+  .marketSignals .dash-flow-6 {
+    animation: dashFlow6 11s linear infinite;
+  }
+
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .marketSignals * {
+      animation: none !important;
+    }
+  }
+
+}
+
+/* Toast icon size - уменьшаем размер иконок */
+div[role="status"] svg,
+.react-hot-toast-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Ensure toasts are above modals */
+.react-hot-toast {
+  z-index: 10002 !important;
+}
+
+.react-hot-toast > div {
+  z-index: 10002 !important;
+}
+

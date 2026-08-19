@@ -1,0 +1,466 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                           String               @id @default(cuid())
+  email                        String               @unique
+  emailVerified                DateTime?
+  passwordHash                 String?
+  name                         String?
+  phone                        String?              @unique
+  image                        String?
+  isTwoFactorEnabled           Boolean              @default(false)
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime             @updatedAt
+  role                         UserRole             @default(USER)
+  displayName                  String?
+  avatarUrl                    String?
+  avatarColor                  String?
+  hasCompletedOnboarding       Boolean              @default(false)
+  referralCode                 String?              @unique
+  referralParentId             String?
+  referralTurnover             Decimal              @default(0) @db.Decimal(18, 2)
+  telegramUserId               String?              @unique
+  telegramChatId               String?
+  telegramUsername             String?
+  telegramConnectedAt          DateTime?
+  telegramNotificationsEnabled Boolean              @default(true)
+  accounts                     Account[]
+  deposits                     Deposit[]
+  otpCodes                     OtpCode[]
+  passwordResetTokens          PasswordResetToken[]
+  referralLevels               ReferralLevel[]
+  referralPayoutsAsFromUser    ReferralPayout[]     @relation("ReferralPayoutFromUser")
+  referralPayoutsAsParent      ReferralPayout[]     @relation("ReferralPayoutParent")
+  sessions                     Session[]
+  strategies                   Strategy[]
+  telegramLinkTokens           TelegramLinkToken[]
+  referralParent               User?                @relation("UserReferralParent", fields: [referralParentId], references: [id])
+  referralChildren             User[]               @relation("UserReferralParent")
+  wallet                       Wallet?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  code      String
+  type      OtpType
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId, consumed])
+}
+
+model Wallet {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  balanceUsdt  Decimal       @default(0.0) @db.Decimal(18, 2)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deposits     Deposit[]
+  transactions Transaction[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  withdrawals  Withdrawal[]
+}
+
+model Transaction {
+  id        String          @id @default(cuid())
+  walletId  String
+  type      TransactionType
+  amount    Decimal         @db.Decimal(18, 8)
+  currency  String          @default("USDT_POLYGON")
+  meta      Json?
+  createdAt DateTime        @default(now())
+  wallet    Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([createdAt])
+  @@index([walletId, createdAt])
+  @@index([type])
+}
+
+model Deposit {
+  id                String          @id @default(cuid())
+  walletId          String
+  provider          DepositProvider @default(OXAPAY)
+  origin            DepositOrigin   @default(REAL)
+  amountUsdt        Decimal         @db.Decimal(18, 2)
+  amountCrypto      Decimal?        @db.Decimal(18, 8)
+  payCurrency       String          @default("usdtmatic")
+  txHash            String?
+  createdAt         DateTime        @default(now())
+  confirmedAt       DateTime?
+  userId            String
+  providerPaymentId String?
+  payAddress        String?
+  expiresAt         DateTime?
+  status            String          @default("paying")
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet            Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([userId])
+  @@index([status])
+  @@index([providerPaymentId])
+  @@index([provider, status])
+  @@index([walletId, status, createdAt])
+  @@index([origin])
+  @@index([origin, status])
+}
+
+model Withdrawal {
+  id                   String                    @id @default(cuid())
+  walletId             String
+  amount               Decimal                   @db.Decimal(18, 8)
+  currency             String                    @default("USDT_POLYGON")
+  toAddress            String
+  status               WithdrawalStatus          @default(PENDING)
+  createdAt            DateTime                  @default(now())
+  processedAt          DateTime?
+  txHash               String?
+  rejectionReason      String?
+  provider             WithdrawalProvider        @default(INTERNAL)
+  providerPayoutId     String?                   @unique
+  providerStatus       WithdrawalProviderStatus?
+  providerErrorMessage String?
+  wallet               Wallet                    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([status])
+  @@index([providerPayoutId])
+  @@index([provider, status])
+}
+
+model Strategy {
+  id                String                    @id @default(cuid())
+  userId            String
+  type              StrategyType
+  amount            Decimal                   @db.Decimal(18, 2)
+  durationDays      Int
+  startDate         DateTime                  @default(now())
+  endDate           DateTime
+  status            StrategyStatus            @default(ACTIVE)
+  minPercent        Decimal                   @db.Decimal(5, 2)
+  maxPercent        Decimal                   @db.Decimal(5, 2)
+  appliedMultiplier Decimal?                  @db.Decimal(5, 2)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  category          String?
+  configId          String?
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  principalReturns  StrategyPrincipalReturn[]
+  profits           StrategyProfit[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, status])
+  @@index([endDate])
+  @@index([category])
+  @@index([configId])
+  @@index([userId, configId, status])
+}
+
+model StrategyProfit {
+  id         String     @id @default(cuid())
+  strategyId String
+  userId     String
+  date       DateTime
+  percent    Decimal    @db.Decimal(5, 2)
+  amount     Decimal    @db.Decimal(18, 8)
+  type       ProfitType
+  strategy   Strategy   @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+  @@index([userId])
+  @@index([date])
+  @@index([userId, date])
+}
+
+model StrategyPrincipalReturn {
+  id         String   @id @default(cuid())
+  strategyId String
+  userId     String
+  amount     Decimal  @db.Decimal(18, 8)
+  createdAt  DateTime @default(now())
+  strategy   Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+  @@index([userId])
+}
+
+model StrategyConfig {
+  id              String       @id @default(cuid())
+  type            StrategyType
+  name            String
+  minAmount       Decimal      @db.Decimal(18, 2)
+  maxAmount       Decimal      @db.Decimal(18, 2)
+  minDays         Int
+  maxDays         Int
+  baseMinPercent  Decimal      @db.Decimal(5, 2)
+  baseMaxPercent  Decimal      @db.Decimal(5, 2)
+  allowMultiplier Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  category        String?
+  description     String?
+  accentColor     String?
+}
+
+model WebhookLog {
+  id          String    @id @default(cuid())
+  externalId  String
+  webhookType String
+  provider    String    @default("OXAPAY")
+  payload     Json
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+  error       String?
+  createdAt   DateTime  @default(now())
+
+  @@unique([externalId, webhookType, provider])
+  @@index([externalId])
+  @@index([processed])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model ReferralLevel {
+  id         String    @id @default(cuid())
+  userId     String
+  level      Int
+  unlocked   Boolean   @default(false)
+  unlockedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, level])
+  @@index([userId])
+  @@index([userId, unlocked])
+}
+
+model ReferralPayout {
+  id           String   @id @default(cuid())
+  parentUserId String
+  fromUserId   String
+  level        Int
+  amount       Decimal  @db.Decimal(18, 8)
+  profitDay    DateTime
+  createdAt    DateTime @default(now())
+  fromUser     User     @relation("ReferralPayoutFromUser", fields: [fromUserId], references: [id], onDelete: Cascade)
+  parentUser   User     @relation("ReferralPayoutParent", fields: [parentUserId], references: [id], onDelete: Cascade)
+
+  @@unique([parentUserId, fromUserId, level, profitDay])
+  @@index([parentUserId])
+  @@index([fromUserId])
+  @@index([profitDay])
+  @@index([parentUserId, profitDay])
+}
+
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TelegramLinkToken {
+  id         String    @id @default(cuid())
+  userId     String
+  token      String    @unique
+  createdAt  DateTime  @default(now())
+  consumedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([consumedAt])
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  content     String?
+  coverUrl    String?
+  youtubeUrl  String?
+  type        PostType  @default(TEXT)
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished])
+  @@index([createdAt])
+}
+
+model KnowledgeItem {
+  id              String            @id @default(cuid())
+  type            KnowledgeItemType
+  title           String
+  description     String?
+  youtubeUrl      String?
+  youtubeCoverUrl String?
+  pdfUrl          String?
+  faqQuestion     String?
+  faqAnswer       String?
+  order           Int               @default(0)
+  isPublished     Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([type])
+  @@index([isPublished])
+  @@index([order])
+}
+
+enum OtpType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  TWO_FACTOR
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  ADJUSTMENT
+  STRATEGY_PROFIT
+  STRATEGY_BONUS
+  STRATEGY_PRINCIPAL_RETURN
+  STRATEGY_PRINCIPAL_LOCK
+  REFERRAL_PAYOUT
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  PROCESSING
+}
+
+enum DepositProvider {
+  OXAPAY
+  MANUAL
+}
+
+enum DepositOrigin {
+  REAL
+  MANUAL
+  TEST
+}
+
+enum WithdrawalProvider {
+  INTERNAL
+  OXAPAY
+}
+
+enum WithdrawalProviderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum StrategyType {
+  DAY
+  WEEK
+  MONTH
+}
+
+enum StrategyStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ProfitType {
+  PROFIT_DAY
+  BONUS_MULTIPLIER
+}
+
+enum KnowledgeItemType {
+  VIDEO
+  PDF
+  FAQ
+  REPORT
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+}
